@@ -31,7 +31,7 @@ def add_post(title, body, user_id=10):
 
 def update_post(title, body, post_id, user_id=10):
     return requests.put(_url('/posts/:id'), json={
-        'user_id': user_id,
+        'userId': user_id,
         'id': post_id,
         'title': title,
         'body': body,
@@ -40,16 +40,40 @@ def update_post(title, body, post_id, user_id=10):
 
 def main():
     print("This is a simple http client to view or update posts")
+    print('='*10)
+    print("View Post")
+    print('=' * 10)
+    num = input("Which post number do you want to see : ")
 
-    input()
+    if num.isdigit():
+        num = int(num)
+    get_post = describe_post(num)
 
-    get_r = describe_post(2)
-    print(get_r.text)
+    if get_post.status_code != 200:
+        raise ApiError('Cannot get the post: {}'.format(get_post.status_code))
 
-    added = add_post("le jore denarera", "This is the body", )
-    if added.status_code != 201:
-        raise ApiError('Cannot create post: {}'.format(added.status_code))
-    print('Created task. ID: {}'.format(added.json()["id"]))
+    print("Post requested. \n ID: {}\n Title: {}\n Body: {}".format(get_post.json()["id"],
+                                                                    get_post.json()["title"],
+                                                                    get_post.json()["body"]
+                                                                    )
+          )
 
+    print("Now lets add a post: ")
+    print('='*10)
+    print("Add Post")
+    print('=' * 10)
 
-# print('{} {}' .format(added['post_id'], added['title']))
+    title = input("Give your post a title ")
+    body = input("Give your post a body")
+
+    add = add_post(title, body)
+    if add.status_code != 201:
+        raise ApiError('Cannot create post: {}'.format(add.status_code))
+    print("Post added. \n ID: {}\n Title: {}\n Body: {}".format(add.json()["id"],
+                                                                add.json()["title"],
+                                                                add.json()["body"]
+                                                                )
+          )
+
+if __name__ == '__main__':
+    main()
